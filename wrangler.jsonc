@@ -1,0 +1,11 @@
+{
+  "name": "achu-simulator",
+  "compatibility_date": "2026-10-01",
+  "routes": [
+    { "pattern": "achu.cyber-ukiyoe.com", "custom_domain": true }
+  ],
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash"
+  }
+}

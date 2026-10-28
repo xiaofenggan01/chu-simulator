@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A 畜模拟器 · PlayGround 组件页</title>
+<link rel="stylesheet" href="css/game.css?v=20261028">
+<style>
+.pg-wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+.pg-title{font-family:var(--serif);font-size:34px;font-weight:700;margin-bottom:6px}
+.pg-sub{color:var(--ink2);font-size:14px;margin-bottom:28px}
+.pg-sec{margin-top:34px}
+.pg-sec>h2{font-family:var(--serif);font-size:22px;font-weight:700;padding-bottom:8px;border-bottom:2px solid var(--ink);margin-bottom:14px}
+.pg-note{font-size:13px;color:var(--ink2);margin-bottom:12px}
+.pg-row{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;margin-bottom:16px}
+.pg-cell{min-width:220px;flex:1 1 240px}
+.pg-cell>b{display:block;font:700 11px/1 var(--mono);letter-spacing:.12em;color:#6E6553;margin-bottom:8px}
+.pg-dark{background:#3A372F;padding:18px;border-radius:8px}
+.pg-mini{position:relative;padding:20px 14px 14px;min-height:180px;background-color:#4A5240;background-image:radial-gradient(rgba(0,0,0,.22) 1.5px,transparent 1.5px),radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:9px 9px,5px 5px;border-radius:6px}
+.pg-mini .ev-item{position:relative !important;left:auto !important;top:auto !important;width:auto}
+.pg-actions{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.pg-btn{padding:9px 16px;border:1.5px solid var(--ink);border-radius:4px;background:#FBF8F1;font:700 13px/1 var(--sans);cursor:pointer}
+.pg-btn:hover{border-color:var(--acc);color:var(--acc-ink)}
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 48 48"><g fill="currentColor">
+    <rect x="22.4" y="3" width="3.2" height="17" rx="1.6"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(30 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(60 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(90 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(120 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(150 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(180 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(210 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(240 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(270 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(300 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(330 24 24)"/>
+  </g></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19a2 2 0 0 1 2-2h14M6 3h13a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A17 17 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/></symbol>
+  <symbol id="i-unionpay" viewBox="0 0 48 32">
+    <path fill="#D62F45" d="M8 2h12l-5 28H3z"/>
+    <path fill="#2453A6" d="M20 2h12l-5 28H15z"/>
+    <path fill="#159784" d="M32 2h13l-5 28H27z"/>
+    <path fill="#fff" d="M8.1 10h3.2l-1.2 6.5c-.2 1 .1 1.4.9 1.4s1.3-.4 1.5-1.4l1.2-6.5h3.2l-1.2 6.8c-.5 2.7-2.3 4-5.2 4-2.8 0-4-1.3-3.5-4zM20.4 10h3.1l2.3 5.4 1-5.4h3l-1.9 10.5h-2.8l-2.5-5.7-1 5.7h-3.1zM33.1 10h4.5c2.8 0 4 1.2 3.6 3.5-.4 2.4-2.1 3.7-5 3.7h-1.1l-.6 3.3h-3.1zm2.4 4.8h.8c1 0 1.6-.4 1.7-1.2.2-.8-.3-1.2-1.3-1.2h-.8z"/>
+  </symbol>
+  <symbol id="i-apple" viewBox="0 0 24 24">
+    <path fill="currentColor" stroke="none" d="M16.8 12.7c0-2.6 2.2-3.9 2.3-4-1.2-1.8-3.2-2-3.9-2-1.7-.2-3.2 1-4 1s-2.1-1-3.5-1c-1.8 0-3.5 1.1-4.4 2.7-1.9 3.3-.5 8.2 1.3 10.8.9 1.3 2 2.7 3.4 2.6 1.4-.1 1.9-.9 3.6-.9 1.7 0 2.2.9 3.6.9 1.5 0 2.5-1.3 3.4-2.6 1-1.5 1.5-3 1.5-3.1-.1 0-3.3-1.3-3.3-4.4zM14.1 5c.8-1 1.3-2.3 1.2-3.6-1.2.1-2.6.8-3.4 1.7-.7.8-1.4 2.2-1.2 3.4 1.3.1 2.6-.6 3.4-1.5z"/>
+  </symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l10 18H2z M12 10v4M12 17.2v.1"/></symbol>
+  <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M7 21h10M3 8h18M6 8l-3 6a3.3 3.3 0 0 0 6 0zM18 8l-3 6a3.3 3.3 0 0 0 6 0z"/></symbol>
+  <symbol id="i-wechat" viewBox="0 0 24 24"><path fill="#07C160" d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></symbol>
+  <symbol id="i-chrome" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-5.344 9.257c.206.01.413.016.621.016 6.627 0 12-5.373 12-12 0-1.54-.29-3.011-.818-4.364zM12 16.364a4.364 4.364 0 1 1 0-8.728 4.364 4.364 0 0 1 0 8.728Z"/></symbol>
+  <symbol id="i-vscode" viewBox="0 0 24 24"><path fill="#007ACC" d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L3.899 12 .326 15.26a1 1 0 0 0 .001 1.479L1.65 17.94a.999.999 0 0 0 1.276.057l4.12-3.128 9.46 8.63a1.492 1.492 0 0 0 1.704.29l4.942-2.377A1.5 1.5 0 0 0 24 20.06V3.939a1.5 1.5 0 0 0-.85-1.352zm-5.146 14.861L10.826 12l7.178-5.448v10.896z"/></symbol>
+  <symbol id="i-tax" viewBox="0 0 36 36"><rect width="36" height="36" rx="8" fill="#2B6DE0"/><text x="18" y="24.5" font-size="17" font-weight="700" fill="#fff" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif">税</text></symbol>
+  <symbol id="i-wps" viewBox="0 0 36 36"><rect width="36" height="36" rx="8" fill="#E8442E"/><text x="18" y="25" font-size="19" font-weight="800" fill="#fff" text-anchor="middle" font-family="Georgia,serif">W</text></symbol>
+</svg>
+<div class="pg-wrap">
+<div class="pg-title">PlayGround · 组件演示页</div>
+<div class="pg-sub">A 畜模拟器全部 UI 组件的独立 demo —— 自由调整与测试用；demo 只增改，不删除</div>
+
+<!-- ============ S1 证物板证物 ============ -->
+<section class="pg-sec">
+<h2>01 · 证物板证物（每件独立 demo）</h2>
+<p class="pg-note">六类证物纸片各自一块迷你软木板。取证节点（橙字高亮）点击切换「已取证」变暗态。</p>
+<div class="pg-row">
+
+  <div class="pg-cell"><b>会话打印件</b>
+    <div class="pg-mini">
+      <div class="ev-item ev-paper" style="position:relative;width:100%;--tilt:-1.2deg;margin:0">
+        <span class="pin-tack ev-tack"></span>
+        <div class="ev-paper-head">会话打印件<small>用户 ↔ Claude</small></div>
+        <div class="ev-talk">
+          <p class="u">我在 <b class="dd-node pg-toggle" data-clue="f1">12306 上买了 G1372 次车票</b>，下午到 <b class="dd-node pg-toggle" data-clue="f2">上海虹桥站</b>。</p>
+          <p class="a">可以。我会按出发、到达和后续事项整理。</p>
+          <p class="u">列一份 <b class="dd-node pg-toggle" data-clue="f3">居住证积分申请材料</b> 清单。</p>
+        </div>
+        <div class="ev-paper-foot">偏好：<b class="dd-node pg-toggle" data-clue="d1">使用中文回复</b> · <b class="dd-node pg-toggle" data-clue="d2">简体中文界面</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-cell"><b>拍立得照片</b>
+    <div class="pg-mini">
+      <div class="ev-item ev-polaroid" style="position:relative;width:70%;margin:0 auto;--tilt:1.8deg">
+        <span class="pin-tack ev-tack gold"></span>
+        <div class="ev-pola-img"><img class="dd-node pg-toggle" data-clue="f5" src="assets/photo-hongqiao.webp" alt="站台照片"></div>
+        <div class="ev-pola-caption">相册最新一张</div>
+        <div class="ev-exif">
+          <span class="dd-node pg-toggle" data-clue="f6"><b>时间</b>今晚 21:47</span>
+          <span class="dd-node pg-toggle" data-clue="f7"><b>定位</b>虹桥站 P9</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-cell"><b>设备检查单</b>
+    <div class="pg-mini">
+      <div class="ev-item ev-paper ev-checklist" style="position:relative;width:100%;--tilt:-1.5deg;margin:0">
+        <span class="pin-tack ev-tack"></span>
+        <div class="ev-paper-head">设备检查单<small>后台 · 近 7 天</small></div>
+        <div class="ev-dock">
+          <span class="ev-dock-item"><img class="app-ic" src="assets/icons/tax.webp" alt="个税"><small class="dd-node pg-toggle" data-clue="f4">个人所得税 APP · 6 次</small></span>
+          <span class="ev-dock-item"><svg class="app-ic"><use href="#i-wechat"/></svg><small class="dd-node pg-toggle" data-clue="f5">微信 → WPS · 23 次</small></span>
+          <span class="ev-dock-item"><svg class="app-ic"><use href="#i-chrome"/></svg><small class="dd-node pg-toggle" data-clue="d3">Chrome → VS Code · 41 次</small></span>
+        </div>
+        <div class="ev-paper-foot">点击高亮项可切换已取证状态</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-cell"><b>银行卡实体</b>
+    <div class="pg-mini">
+      <div class="ev-item ev-bankcard" style="position:relative;width:82%;margin:14px auto 10px;--tilt:1.5deg;max-width:none;flex:none">
+        <span class="pin-tack ev-tack gold"></span>
+        <div class="ev-bc-chip"></div>
+        <div class="ev-bc-no">6214 83•• •••• 0021</div>
+        <div class="ev-bc-meta">
+          <span class="dd-node pg-toggle" data-clue="f3"><svg class="ic"><use href="#i-unionpay"/></svg>银联 UnionPay</span>
+          <span class="dd-node pg-toggle" data-clue="f4">发卡地区 上海</span>
+          <span class="dd-node pg-toggle" data-clue="d4">USD 结算</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-cell"><b>营业执照</b>
+    <div class="pg-mini">
+      <div class="ev-item ev-paper ev-license" style="position:relative;width:100%;--tilt:-1deg;margin:0;max-width:none;flex:none">
+        <span class="pin-tack ev-tack gold"></span>
+        <div class="ev-license-head">营业执照<small>（副本）</small></div>
+        <div class="ev-license-body">
+          <p>统一社会信用代码</p>
+          <b class="dd-node pg-toggle" data-clue="f1">91440300MA5F7K2X9Q</b>
+          <p>登记机关</p>
+          <b class="dd-node pg-toggle" data-clue="f2">深圳市市场监督管理局</b>
+        </div>
+        <div class="ev-license-seal">营业执照</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pg-cell"><b>终端纸 + 屏幕快照</b>
+    <div class="pg-mini">
+      <div class="ev-item ev-term" style="position:relative;width:100%;--tilt:1.2deg;margin:0;max-width:none;flex:none;padding-top:0">
+        <span class="pin-tack ev-tack"></span>
+        <div class="ev-term-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span>zsh</span></div>
+        <div class="ev-term-body">$ npm install
+<span class="dim">读取镜像设置…</span>
+registry: <b class="dd-node pg-toggle" data-clue="f1">registry.npmmirror.com</b>
+重试 <b class="dd-node pg-toggle" data-clue="d2">3 次</b></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- ============ S2 线索栏 ============ -->
+<section class="pg-sec">
+<h2>02 · 像素线索栏</h2>
+<p class="pg-note">三种状态：锁定（不足 3 条）/ 收集中 / 已解锁。右下角为实际固定定位演示。</p>
+<div class="pg-row">
+  <div class="pg-cell"><b>锁定态</b>
+    <div id="pin-tray" style="position:static;transform:none;max-height:none">
+      <div class="pin-tray-head"><b>线索</b><span>2/11</span></div>
+      <div class="pin-tray-list">
+        <div class="pin-tray-card">站台照片</div>
+        <div class="pin-tray-card junk">查天气</div>
+      </div>
+      <button class="pin-tray-go" disabled><span>展开推理</span><svg class="ic"><use href="#i-arrow-r"/></svg></button>
+    </div>
+  </div>
+  <div class="pg-cell"><b>解锁态</b>
+    <div id="pin-tray2" style="position:static;transform:none;max-height:none">
+      <div class="pin-tray-head"><b>线索</b><span>3/3</span></div>
+      <div class="pin-tray-list">
+        <div class="pin-tray-card">12306 订单</div>
+        <div class="pin-tray-card">到达虹桥</div>
+        <div class="pin-tray-card junk">中文回复</div>
+      </div>
+      <button class="pin-tray-go"><span>展开推理</span><svg class="ic"><use href="#i-arrow-r"/></svg></button>
+    </div>
+  </div>
+  <div class="pg-cell"><b>取证飞行动画</b>
+    <p class="pg-note">点击触发：线索卡分身飞入。</p>
+    <div class="pg-actions"><button class="pg-btn" onclick="pgFly(this)">触发飞行动画</button></div>
+  </div>
+</div>
+</section>
+
+<!-- ============ S3 推理板组件 ============ -->
+<section class="pg-sec">
+<h2>03 · 推理板组件</h2>
+<p class="pg-note">组便签 / 四种槽位状态 / 反应台三态。点按钮触发合成爆闪与失败抖动动画。</p>
+<div class="pg-row pg-dark">
+  <div class="pg-cell" style="flex:2 1 420px;position:relative;min-height:340px;background-color:#4A5240;background-image:radial-gradient(rgba(0,0,0,.22) 1.5px,transparent 1.5px),radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:9px 9px,5px 5px;padding:16px">
+    <span class="pin-grouptag" style="position:relative;display:inline-flex;margin-bottom:18px">会话记录</span>
+    <div class="pg-row" style="gap:14px">
+      <div class="pin-slot empty" style="position:relative;width:180px"><span class="pin-q">?</span><small>未取证</small></div>
+      <div class="pin-slot empty synth-slot" style="position:relative;width:180px"><span class="pin-q">+</span><small>推论 · 待推导</small></div>
+      <div class="pin-card slot-filled fact" style="position:relative;width:180px;transform:rotate(-2deg)">
+        <small>证据</small><b>12306 订单</b><span class="pin-tack"></span>
+      </div>
+      <div class="pin-card slot-filled synth" style="position:relative;width:180px;transform:rotate(1.6deg)">
+        <small>推论</small><b>明天抵沪</b><span class="pin-tack"></span>
+      </div>
+    </div>
+    <div class="pin-card slot-filled final" style="position:relative;width:240px;margin-top:22px">
+      <small>结案</small><b>用户人在中国大陆</b><p>注册、银行卡、付款 IP 三线合一</p><span class="pin-tack"></span>
+    </div>
+  </div>
+</div>
+<div class="pg-cell" style="flex:1 1 320px">
+  <b>反应台（合成 / 失败 / 待放入）</b>
+  <div class="pin-reactor" id="pg-reactor" style="position:static">
+    <span class="reactor-title">反应台</span>
+    <div class="reactor-slot" id="pg-rsa"><small>拖入线索 A</small></div>
+    <span class="reactor-plus">+</span>
+    <div class="reactor-slot" id="pg-rsb"><small>拖入线索 B</small></div>
+    <button class="reactor-go" id="pg-rgo" disabled><svg class="ic"><use href="#i-bulb"/></svg>推理</button>
+  </div>
+  <div class="pg-actions">
+    <button class="pg-btn" onclick="pgBoom()">演示合成成功</button>
+    <button class="pg-btn" onclick="pgFizzle()">演示失败退回</button>
+  </div>
+</div>
+</section>
+
+<!-- ============ S4 达里奥底栏 ============ -->
+<section class="pg-sec">
+<h2>04 · 达里奥底栏</h2>
+<p class="pg-note">血条三态（满血橙绿 / 低血红 / 濒死）、提示按钮、表情图。点按钮切换血量演示。</p>
+<div class="pg-cell" style="max-width:860px">
+  <div id="dario-bar" class="on" style="position:static;transform:none;width:100%;max-width:none;margin-bottom:12px">
+    <div class="dario-face" data-face="idle"><img src="assets/dario-idle.webp" alt="Dario"><span class="dario-face-ring"></span></div>
+    <div class="dario-hp-cells" id="pg-hp">$<i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+    <div class="dario-meta">
+      <div class="dario-top"><b>D. Amodei</b><span class="dario-say">今晚的证据有点多。</span><span class="dario-ev-count">2/7</span></div>
+      <div class="dario-ev-slots" style="grid-template-columns:repeat(7,minmax(0,1fr))">
+        <span class="ev-slot confirmed">12306</span><span class="ev-slot confirmed">虹桥站</span><span class="ev-slot empty"><i>3</i></span><span class="ev-slot empty"><i>4</i></span><span class="ev-slot empty"><i>5</i></span><span class="ev-slot empty"><i>6</i></span><span class="ev-slot empty"><i>7</i></span>
+      </div>
+    </div>
+    <button class="dario-hint" title="每次 -1 滴血"><svg class="ic"><use href="#i-bulb"/></svg><span>提示</span><small>-1 血</small></button>
+  </div>
+  <div class="pg-actions">
+    <button class="pg-btn" onclick="pgHp(10)">满血</button>
+    <button class="pg-btn" onclick="pgHp(3)">低血</button>
+    <button class="pg-btn" onclick="pgHp(1)">濒死</button>
+  </div>
+</div>
+</section>
+
+<!-- ============ S5 速裁组件 ============ -->
+<section class="pg-sec">
+<h2>05 · 值班速裁组件</h2>
+<p class="pg-note">章键按下手感、盖章动画、立绘卡动态（呼吸 + CRT 扫描 + 裁定反应）、12 格进度。</p>
+<div class="pg-row">
+  <div class="pg-cell"><b>盖章键 + 印章</b>
+    <div class="pg-actions">
+      <button class="rv-btn rv-ban" style="min-width:150px"><svg class="ic"><use href="#i-ban"/></svg>封禁</button>
+      <button class="rv-btn rv-pass" style="min-width:150px"><svg class="ic"><use href="#i-check"/></svg>通过</button>
+    </div>
+    <div style="position:relative;min-height:110px">
+      <div id="pg-stamp-slot" style="position:absolute;left:10px;bottom:10px"></div>
+    </div>
+    <div class="pg-actions">
+      <button class="pg-btn" onclick="pgStamp('ban')">盖「停用」章</button>
+      <button class="pg-btn" onclick="pgStamp('pass')">盖「放行」章</button>
+    </div>
+  </div>
+  <div class="pg-cell"><b>立绘卡动态</b>
+    <div class="rv-idcard rv-slidein" id="pg-idcard" style="position:relative;width:150px">
+      <img class="rv-portrait" src="assets/portraits/user-1.webp" alt="来访用户">
+      <div class="rv-crt"></div>
+      <div class="rv-idplate"><span>来访用户</span><b>A-1024</b></div>
+    </div>
+    <div class="pg-actions">
+      <button class="pg-btn" onclick="pgVerdict('ban')">封禁反应（变灰下沉）</button>
+      <button class="pg-btn" onclick="pgVerdict('pass')">放行反应（轻快一跳）</button>
+    </div>
+  </div>
+  <div class="pg-cell"><b>12 格裁定进度</b>
+    <div class="rv-progress" style="margin-top:0">
+      <span class="rv-pslot ok">✓</span><span class="rv-pslot ok">✓</span><span class="rv-pslot bad">✗</span>
+      <span class="rv-pslot ok">✓</span><span class="rv-pslot ok">✓</span><span class="rv-pslot bad">✗</span>
+      <span class="rv-pslot ok">✓</span><span class="rv-pslot"></span><span class="rv-pslot"></span>
+      <span class="rv-pslot"></span><span class="rv-pslot"></span><span class="rv-pslot"></span>
+    </div>
+    <p class="pg-note" style="margin-top:8px">对错逐格点亮，终点交班结算。</p>
+  </div>
+</div>
+</section>
+
+<!-- ============ S6 通用组件 ============ -->
+<section class="pg-sec">
+<h2>06 · 通用组件</h2>
+<p class="pg-note">主按钮 / 幽灵按钮 / 文本按钮 / toast / 过关表情 / 封号信。</p>
+<div class="pg-row">
+  <div class="pg-cell"><b>按钮三型</b>
+    <div class="pg-actions">
+      <button class="btn">主按钮<svg class="ic"><use href="#i-arrow-r"/></svg></button>
+      <button class="btn ghost">幽灵按钮</button>
+      <button class="btn text-btn">文本按钮</button>
+    </div>
+  </div>
+  <div class="pg-cell"><b>toast</b>
+    <div class="pg-actions"><button class="pg-btn" onclick="pgToast()">触发 toast</button></div>
+    <div id="toast" class="on" style="position:static;transform:none">系统通知：该账号已被停用 · 不接受申诉</div>
+  </div>
+  <div class="pg-cell"><b>过关表情（第 N 关递进）</b>
+    <div class="pg-row" style="gap:12px">
+      <div class="lc-applaud" data-level="1"><img src="assets/dario-thumbsup.webp" alt="点头"></div>
+      <div class="lc-applaud" data-level="3"><img src="assets/dario-clap.webp" alt="鼓掌"></div>
+      <div class="lc-applaud" data-level="5"><img src="assets/dario-salute.webp" alt="致敬"></div>
+    </div>
+  </div>
+</div>
+</section>
+
+</div>
+<script>
+// 取证节点状态切换
+document.querySelectorAll('.pg-toggle').forEach(function(n){
+  n.addEventListener('click', function(){
+    n.classList.toggle('clue-got')
+    n.classList.toggle('pg-toggle')
+  })
+})
+// 飞行动画
+function pgFly(btn) {
+  var r = btn.getBoundingClientRect()
+  var fly = document.createElement('div')
+  fly.className = 'dd-fly'
+  fly.textContent = '12306 订单'
+  fly.style.left = r.left + 'px'
+  fly.style.top = r.top - 60 + 'px'
+  document.body.appendChild(fly)
+  requestAnimationFrame(function() {
+    fly.style.left = (r.left + 260) + 'px'
+    fly.style.top = (r.top - 200) + 'px'
+    fly.classList.add('go')
+  })
+  setTimeout(function(){ fly.remove() }, 620)
+}
+// 反应台动画
+function pgBoom() {
+  var a = document.getElementById('pg-rsa'), b = document.getElementById('pg-rsb')
+  a.classList.add('filled'); b.classList.add('filled')
+  a.innerHTML = '<b>站台照片</b>'; b.innerHTML = '<b>拍摄定位</b>'
+  document.getElementById('pg-rgo').disabled = false
+  var bar = document.getElementById('pg-reactor')
+  bar.classList.add('boom')
+  setTimeout(function() {
+    bar.classList.remove('boom')
+    a.classList.remove('filled'); b.classList.remove('filled')
+    a.innerHTML = '<small>拖入线索 A</small>'; b.innerHTML = '<small>拖入线索 B</small>'
+    document.getElementById('pg-rgo').disabled = true
+  }, 1200)
+}
+function pgFizzle() {
+  var bar = document.getElementById('pg-reactor')
+  bar.classList.add('fizzle')
+  setTimeout(function(){ bar.classList.remove('fizzle') }, 500)
+}
+// 达里奥血条
+function pgHp(n) {
+  var cells = document.querySelectorAll('#pg-hp i')
+  cells.forEach(function(c, i) {
+    c.classList.toggle('on', i < n)
+    c.classList.toggle('low', n <= 3)
+  })
+}
+// 盖章
+function pgStamp(kind) {
+  var slot = document.getElementById('pg-stamp-slot')
+  slot.innerHTML = kind === 'ban'
+    ? '<div class="rv-stampmark ban">停 用</div>'
+    : '<div class="rv-stampmark pass">放 行</div>'
+}
+// 立绘反应
+function pgVerdict(kind) {
+  var card = document.getElementById('pg-idcard')
+  card.classList.remove('is-banned', 'is-passed')
+  void card.offsetWidth
+  card.classList.add(kind === 'ban' ? 'is-banned' : 'is-passed')
+}
+function pgToast() {
+  var t = document.getElementById('toast')
+  t.classList.remove('on'); void t.offsetWidth; t.classList.add('on')
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A 畜模拟器 · Safeguards Team 模拟器</title>
+<meta name="description" content="扮演 Anthropic 审核员，从仿真界面里找出中国用户并封号。讽刺戏仿作品。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cg fill='%23D97757'%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6'/%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6' transform='rotate(30 24 24)'/%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6' transform='rotate(60 24 24)'/%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6' transform='rotate(90 24 24)'/%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6' transform='rotate(120 24 24)'/%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6' transform='rotate(150 24 24)'/%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6' transform='rotate(180 24 24)'/%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6' transform='rotate(210 24 24)'/%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6' transform='rotate(240 24 24)'/%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6' transform='rotate(270 24 24)'/%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6' transform='rotate(300 24 24)'/%3E%3Crect x='22.4' y='3' width='3.2' height='17' rx='1.6' transform='rotate(330 24 24)'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="assets/caseboard-hero.webp" as="image" fetchpriority="high">
+<link rel="preload" href="assets/dario-idle.webp" as="image">
+<link rel="stylesheet" href="css/game.css?v=20261028b">
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 48 48"><g fill="currentColor">
+    <rect x="22.4" y="3" width="3.2" height="17" rx="1.6"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(30 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(60 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(90 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(120 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(150 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(180 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(210 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(240 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(270 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(300 24 24)"/><rect x="22.4" y="3" width="3.2" height="17" rx="1.6" transform="rotate(330 24 24)"/>
+  </g></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0 0 12 2z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19a2 2 0 0 1 2-2h14M6 3h13a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A17 17 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/></symbol>
+  <symbol id="i-unionpay" viewBox="0 0 48 32">
+    <path fill="#D62F45" d="M8 2h12l-5 28H3z"/>
+    <path fill="#2453A6" d="M20 2h12l-5 28H15z"/>
+    <path fill="#159784" d="M32 2h13l-5 28H27z"/>
+    <path fill="#fff" d="M8.1 10h3.2l-1.2 6.5c-.2 1 .1 1.4.9 1.4s1.3-.4 1.5-1.4l1.2-6.5h3.2l-1.2 6.8c-.5 2.7-2.3 4-5.2 4-2.8 0-4-1.3-3.5-4zM20.4 10h3.1l2.3 5.4 1-5.4h3l-1.9 10.5h-2.8l-2.5-5.7-1 5.7h-3.1zM33.1 10h4.5c2.8 0 4 1.2 3.6 3.5-.4 2.4-2.1 3.7-5 3.7h-1.1l-.6 3.3h-3.1zm2.4 4.8h.8c1 0 1.6-.4 1.7-1.2.2-.8-.3-1.2-1.3-1.2h-.8z"/>
+  </symbol>
+  <symbol id="i-apple" viewBox="0 0 24 24">
+    <path fill="currentColor" stroke="none" d="M16.8 12.7c0-2.6 2.2-3.9 2.3-4-1.2-1.8-3.2-2-3.9-2-1.7-.2-3.2 1-4 1s-2.1-1-3.5-1c-1.8 0-3.5 1.1-4.4 2.7-1.9 3.3-.5 8.2 1.3 10.8.9 1.3 2 2.7 3.4 2.6 1.4-.1 1.9-.9 3.6-.9 1.7 0 2.2.9 3.6.9 1.5 0 2.5-1.3 3.4-2.6 1-1.5 1.5-3 1.5-3.1-.1 0-3.3-1.3-3.3-4.4zM14.1 5c.8-1 1.3-2.3 1.2-3.6-1.2.1-2.6.8-3.4 1.7-.7.8-1.4 2.2-1.2 3.4 1.3.1 2.6-.6 3.4-1.5z"/>
+  </symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l10 18H2z M12 10v4M12 17.2v.1"/></symbol>
+  <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M7 21h10M3 8h18M6 8l-3 6a3.3 3.3 0 0 0 6 0zM18 8l-3 6a3.3 3.3 0 0 0 6 0z"/></symbol>
+  <symbol id="i-wechat" viewBox="0 0 24 24"><path fill="#07C160" d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></symbol>
+  <symbol id="i-chrome" viewBox="0 0 24 24"><path fill="#4285F4" d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-5.344 9.257c.206.01.413.016.621.016 6.627 0 12-5.373 12-12 0-1.54-.29-3.011-.818-4.364zM12 16.364a4.364 4.364 0 1 1 0-8.728 4.364 4.364 0 0 1 0 8.728Z"/></symbol>
+  <symbol id="i-vscode" viewBox="0 0 24 24"><path fill="#007ACC" d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L3.899 12 .326 15.26a1 1 0 0 0 .001 1.479L1.65 17.94a.999.999 0 0 0 1.276.057l4.12-3.128 9.46 8.63a1.492 1.492 0 0 0 1.704.29l4.942-2.377A1.5 1.5 0 0 0 24 20.06V3.939a1.5 1.5 0 0 0-.85-1.352zm-5.146 14.861L10.826 12l7.178-5.448v10.896z"/></symbol>
+  <symbol id="i-tax" viewBox="0 0 36 36"><rect width="36" height="36" rx="8" fill="#2B6DE0"/><text x="18" y="24.5" font-size="17" font-weight="700" fill="#fff" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif">税</text></symbol>
+  <symbol id="i-wps" viewBox="0 0 36 36"><rect width="36" height="36" rx="8" fill="#E8442E"/><text x="18" y="25" font-size="19" font-weight="800" fill="#fff" text-anchor="middle" font-family="Georgia,serif">W</text></symbol>
+</svg>
+
+<div id="app"></div>
+
+<div id="hud" hidden></div>
+<div id="toast"></div>
+
+<div class="overlay" id="ov-codex" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1"><div class="modal codex-modal" id="codex-modal"></div></div>
+<div class="overlay level-complete-overlay" id="ov-level-complete" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1"><div class="modal level-complete-modal" id="level-complete-modal"></div></div>
+
+<script type="module" src="js/main.js?v=20261028b"></script>
+</body>
+</html>
