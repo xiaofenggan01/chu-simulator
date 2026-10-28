@@ -34,8 +34,6 @@ python3 nocache-server.py 8747
 
 > 必须用自带的 `nocache-server.py`（禁用缓存头）；系统 `http.server` 的启发式缓存会让你改代码后看到旧版本。
 
-组件演示页：`playground.html`（仅本地调试用，不部署）。
-
 ## 部署
 
 任意静态托管皆可。以 Cloudflare Workers 为例：
