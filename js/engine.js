@@ -42,7 +42,8 @@ export const hooks = { onInspect: null, onHpChange: null, onDeath: null }
 export function level() { return LEVELS[state.levelIdx] }
 export function clueIds() { return state.clueList.map(c => typeof c === 'number' ? c : c.id) }
 export function clueIdFor(k) {
-  const key = Number(k)
+  // 断案模式用字符串 id（f1/d1…），数字线索才走 comboMap
+  const key = typeof k === 'number' || /^\d+$/.test(String(k)) ? Number(k) : String(k)
   return state.comboMap.get(key)?.id ?? key
 }
 export function clueLabel(k) {

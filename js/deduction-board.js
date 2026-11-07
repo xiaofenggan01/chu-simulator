@@ -28,7 +28,9 @@ function handleHint(level) {
     for (const cb of level.deduc.combos) {
       if (known.has(cb.out.id)) continue
       if (known.has(cb.a) && known.has(cb.b)) {
+        state.hintHits = (state.hintHits || 0) + 1
         applyDamage()
+        darioHurt('提示已用 · 达里奥 -1 血')
         if (typeof ov.__applyHint === 'function') ov.__applyHint(cb.a, cb.b)
         return
       }
@@ -36,6 +38,7 @@ function handleHint(level) {
     const missing = level.deduc.facts.find(f => !bd.collected.has(f.id))
     if (missing) {
       applyDamage()
+      darioHurt('提示已用 · 达里奥 -1 血')
       toast(`提示：场景里还有「${missing.label}」没收进卷宗`)
       const slot = ov.querySelector(`.pin-slot[data-id="${missing.id}"]`)
       if (slot) { slot.classList.add('hint-flash'); setTimeout(() => slot.classList.remove('hint-flash'), 2400) }
@@ -46,8 +49,10 @@ function handleHint(level) {
     // 收集阶段：指出一条还没取的线索
     const node = document.querySelector('.dd-node[data-clue]:not(.clue-got)')
     if (node) {
+      state.hintHits = (state.hintHits || 0) + 1
       applyDamage()
-      toast('提示：这条线索还没收进卷宗（-1 滴血）')
+      darioHurt('提示已用 · 达里奥 -1 血')
+      toast('提示：这条线索还没收进卷宗（达里奥 -1 滴血）')
       node.classList.add('hint-flash')
       node.scrollIntoView({ block: 'center', behavior: 'smooth' })
       setTimeout(() => node.classList.remove('hint-flash'), 2400)
@@ -71,6 +76,22 @@ export function mountCollection(level, root) {
 
   const collected = new Set()
 
+  // 键盘可达：把场景里的取证节点变成可聚焦按钮
+  const enhanceNodes = () => {
+    root.querySelectorAll('.dd-node[data-clue]').forEach(n => {
+      if (n.dataset.kbd) return
+      n.dataset.kbd = '1'
+      n.tabIndex = 0
+      n.setAttribute('role', 'button')
+      n.addEventListener('keydown', ev => {
+        if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); n.click() }
+      })
+    })
+  }
+  enhanceNodes()
+  const obs = new MutationObserver(enhanceNodes)
+  obs.observe(root, { childList: true, subtree: true })
+
   root.addEventListener('click', e => {
     const node = e.target.closest('[data-clue]')
     if (!node) return
@@ -86,6 +107,7 @@ export function mountCollection(level, root) {
       state.found.push(id)
       darioPraise('收进卷宗：' + def.label)
     } else {
+      state.decoyHits = (state.decoyHits || 0) + 1
       darioHurt('废线索：' + def.label)
     }
     refreshEvidence()
@@ -125,7 +147,7 @@ export function mountCollection(level, root) {
         }).join('')}
       </div>
       <button class="pin-tray-go" id="go-board" ${collected.size < 3 ? 'disabled' : ''}>
-        <span>展开推理</span><svg class="ic"><use href="#i-arrow-r"/></svg>
+        <span>${collected.size < 3 ? `还需 ${3 - collected.size} 条` : '展开推理'}</span><svg class="ic"><use href="#i-arrow-r"/></svg>
       </button>`
     const go = tray.querySelector('#go-board')
     if (go) go.onclick = () => openBoard(level, { collected, onSolved: () => document.dispatchEvent(new CustomEvent('achu:deduction-solved')) })
@@ -141,6 +163,10 @@ export function openBoard(level, { collected, onSolved }) {
   const ov = document.createElement('div')
   ov.className = 'overlay pin-overlay'
   ov.id = 'ov-deduction'
+  document.body.style.overflow = 'hidden'
+  ov.setAttribute('role', 'dialog')
+  ov.setAttribute('aria-modal', 'true')
+  ov.setAttribute('aria-label', '推理板')
   ov.innerHTML = `
     <div class="pin-win">
       <div class="pin-winbar">
@@ -179,6 +205,7 @@ export function openBoard(level, { collected, onSolved }) {
   }
   const positions = new Map()
   const rotations = new Map() // 每槽固定旋转角（案发现场的杂乱感）
+  const NARROW_H = 92
   const CARD_H = 126, GAP = 16
   const rotOf = (id, i) => {
     let h = 23
@@ -189,6 +216,7 @@ export function openBoard(level, { collected, onSolved }) {
     positions.clear()
     rotations.clear()
     const W = board.clientWidth || 640
+    const CARD_H = W < 640 ? NARROW_H : 126
     const groups = level.deduc.groups || []
     // 两列案情簇：box.x < 50 的组挂左列、其余右列；列内垂直堆叠（真实板面的左右两片）
     const narrow = W < 640
@@ -256,7 +284,7 @@ export function openBoard(level, { collected, onSolved }) {
       const rot = rotations.get(c.id) || 0
       const inReactor = reactor.a === c.id || reactor.b === c.id
       html += has
-        ? `<div class="pin-card slot-filled ${isFact ? 'fact' : 'decoy'} ${inReactor ? 'in-reactor' : ''}" data-id="${c.id}" style="left:${pos.x}px;top:${pos.y}px;width:${pos.w || 190}px;transform:rotate(${rot}deg)">
+        ? `<div class="pin-card slot-filled ${isFact ? 'fact' : 'decoy'} ${inReactor ? 'in-reactor' : ''}" data-id="${c.id}" tabindex="0" role="button" aria-label="${isFact ? '证据' : '杂项'}：${c.label}" style="left:${pos.x}px;top:${pos.y}px;width:${pos.w || 190}px;transform:rotate(${rot}deg)">
             <small>${isFact ? '证据' : '杂项'}</small><b>${c.label}</b>
             <span class="pin-tack"></span>
           </div>`
@@ -405,6 +433,19 @@ export function openBoard(level, { collected, onSolved }) {
       renderReactor()
     }
   }
+  board.addEventListener('keydown', e => {
+    var card = e.target.closest && e.target.closest('.pin-card')
+    if (!card) return
+    if (e.key !== 'Enter' && e.key !== ' ') return
+    e.preventDefault()
+    var id = card.dataset.id
+    if (id === 'SOLVED') return
+    if (reactor.a === id) { reactor.a = null } else if (reactor.b === id) { reactor.b = null }
+    else if (!reactor.a) reactor.a = id
+    else if (!reactor.b) reactor.b = id
+    else reactor.b = id
+    renderReactor()
+  })
   board.addEventListener('pointerup', endDrag)
   board.addEventListener('pointercancel', endDrag)
 
@@ -429,12 +470,16 @@ export function openBoard(level, { collected, onSolved }) {
       setTimeout(() => reactorBar.classList.remove('boom'), 600)
       const fresh = field.querySelector(`[data-id="${res.out.id}"]`)
       if (fresh) { fresh.classList.add('fresh'); fresh.scrollIntoView({ block: 'nearest', behavior: 'smooth' }) }
-      if (res.final) setTimeout(() => { ov.remove(); onSolved() }, 1100)
+      if (res.final) {
+        document.getElementById('play-root')?.classList.add('is-locked')
+        setTimeout(() => { document.body.style.overflow = ''; ov.remove(); onSolved() }, 1100)
+      }
     } else if (res.why === 'nomatch') {
       // 无效推理消耗达里奥 1 滴血：血条是容错资源，乱试组合会把他耗干
       applyDamage()
       darioHurt(COMBO_FAIL_WORDS[Math.floor(Math.random() * COMBO_FAIL_WORDS.length)])
       reactorBar.classList.add('fizzle')
+      if (typeof toast === 'function') toast('配对无效 · 达里奥 -1 血')
       setTimeout(() => {
         reactorBar.classList.remove('fizzle')
         reactor.a = reactor.b = null
@@ -447,7 +492,7 @@ export function openBoard(level, { collected, onSolved }) {
   }
   renderReactor()
 
-  ov.querySelector('#pin-close').onclick = () => { document.dispatchEvent(new CustomEvent('achu:close-board')); ov.remove() }
+  ov.querySelector('#pin-close').onclick = () => { document.body.style.overflow = ''; document.dispatchEvent(new CustomEvent('achu:close-board')); ov.remove() }
   requestAnimationFrame(() => {
     ov.classList.add('on')
     requestAnimationFrame(() => {

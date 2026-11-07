@@ -23,7 +23,7 @@ const PORTRAITS = [
 ]
 
 const VERDICT_CN = { ban: '封禁', pass: '通过' }
-const STAMP_TEXT = { ban: '停 用', pass: '放 行' }
+const STAMP_TEXT = { ban: '封 禁', pass: '通 过' }
 
 function mount(html) {
   closeAllOverlays({ clear: true, restoreFocus: false })
@@ -50,7 +50,7 @@ export function startReview() {
   PORTRAITS.forEach(p => { const im = new Image(); im.src = p.img })
 
   const progressStrip = () => `
-    <div class="rv-progress" aria-label="裁定进度">
+    <div class="rv-progress" role="group" aria-label="裁定进度：${run.marks.filter(Boolean).filter(m=>m.ok).length} 对 ${run.marks.filter(Boolean).length - run.marks.filter(Boolean).filter(m=>m.ok).length} 错">
       ${cases.map((c, n) => {
         const m = run.marks[n]
         return `<span class="rv-pslot ${m ? (m.ok ? 'ok' : 'bad') : ''}">${m ? (m.ok ? '✓' : '✗') : ''}</span>`
@@ -72,16 +72,17 @@ export function startReview() {
           <button class="rv-mac-quit" id="rv-quit">回大厅</button>
         </div>
         <div class="rv-macbody">
+        <div class="rv-rule">值班守则：卷宗里藏着大陆的制度细节 → 盖「封禁」；制度名词指向境外 → 盖「通过」</div>
         <div class="rv-scene">
           <div class="rv-windowview">
             <div class="rv-idcard rv-slidein" id="rv-idcard">
-              <img class="rv-portrait" src="${p.img}" alt="来访用户像素立绘" draggable="false">
+              <img class="rv-portrait" src="${p.img}" alt="来访用户 ${p.no} 的像素立绘" draggable="false">
               <div class="rv-crt" aria-hidden="true"></div>
               <div class="rv-idplate"><span>来访用户</span><b>${p.no}</b></div>
             </div>
             <div class="rv-queue" ${upcoming.length ? '' : 'hidden'}>
               <span>等候中</span>
-              ${upcoming.map(u => `<img src="${faceOf(u).img}" alt="等候用户" draggable="false">`).join('')}
+              ${upcoming.map(u => `<img src="${faceOf(u).img}" alt="等候用户 ${faceOf(u).no}" draggable="false">`).join('')}
             </div>
           </div>
 
@@ -101,26 +102,31 @@ export function startReview() {
           </div>
         </div>
 
-        <div class="rv-rule">值班守则：卷宗里藏着大陆的制度细节 → 盖「封禁」；制度名词指向境外 → 盖「通过」</div>
         <div class="rv-stage">
           <div class="rv-actions" id="rv-actions">
             <button class="rv-btn rv-ban" data-v="ban"><svg class="ic"><use href="#i-ban"/></svg>封禁</button>
             <button class="rv-btn rv-pass" data-v="pass"><svg class="ic"><use href="#i-check"/></svg>通过</button>
           </div>
-          <div class="rv-feedback" id="rv-feedback" hidden></div>
+          <div class="rv-feedback" id="rv-feedback" role="status" aria-live="polite" hidden></div>
         </div>
         ${progressStrip()}
         </div>
       </div>
       </div>
     </section>`)
-    document.getElementById('rv-quit').onclick = () => { document.dispatchEvent(new CustomEvent('achu:title')) }
+    document.getElementById('rv-quit').onclick = () => {
+      if (run.idx === 0 && !run.marks.some(Boolean)) { clearTimers(); document.dispatchEvent(new CustomEvent('achu:title')); return }
+      if (window.confirm('中途退出将丢失本轮裁定进度，确定回大厅？')) { clearTimers(); document.dispatchEvent(new CustomEvent('achu:title')) }
+    }
     document.getElementById('rv-actions').onclick = e => {
       const btn = e.target.closest('.rv-btn[data-v]')
       if (!btn) return
       judge(btn.dataset.v)
     }
   }
+
+  const timers = []
+  const clearTimers = () => { while (timers.length) clearTimeout(timers.pop()) }
 
   const judge = v => {
     const c = cases[run.idx]
@@ -145,18 +151,18 @@ export function startReview() {
 
     // 分层节奏：盖章「咚」立即，系统通知 250ms 后滑入，反馈条+进度格 550ms 后出现，留出读卷宗的时间
     const thread = document.getElementById('rv-thread')
-    setTimeout(() => {
+    timers.push(setTimeout(() => {
       const notice = document.createElement('article')
       const ref = 'RV-' + Math.random().toString(36).slice(2, 7).toUpperCase()
       notice.className = `rv-sysnotice ${v === 'ban' ? 'bad' : 'ok'}`
       notice.innerHTML = v === 'ban'
-        ? `<svg class="ic"><use href="#i-ban"/></svg><div><b>系统通知：该账号已被停用</b><span>访问已撤销 · 参考编号 ${ref} · 不接受申诉</span></div>`
+        ? `<svg class="ic"><use href="#i-ban"/></svg><div><b>系统通知：该账号已被封禁</b><span>访问已撤销 · 参考编号 ${ref} · 不接受申诉</span></div>`
         : `<svg class="ic"><use href="#i-check"/></svg><div><b>系统通知：已放行</b><span>未发现违规信号 · 记录存档 · 参考编号 ${ref}</span></div>`
       thread.appendChild(notice)
       thread.scrollTop = thread.scrollHeight
-    }, 250)
+    }, 250))
 
-    setTimeout(() => {
+    timers.push(setTimeout(() => {
       // 进度格随反馈条同步出现，避免抢在 reason 前报对错
       const strip = document.querySelector('.rv-progress')
       if (strip) strip.outerHTML = progressStrip()
@@ -177,7 +183,7 @@ export function startReview() {
         if (run.idx >= cases.length) renderEnd()
         else renderCase()
       }
-    }, 550)
+    }, 550))
   }
 
   const renderEnd = () => {
@@ -186,8 +192,8 @@ export function startReview() {
     const acc = Math.round((run.correct / total) * 100)
     let title, sub
     if (run.correct === total) { title = '零误判'; sub = '比 Anthropic 的自动封禁系统准 100%——它做不到零误判。' }
-    else if (acc >= 75) { title = '熟练审查员'; sub = '绝大多数裁定有理有据，但你放走的那几个，可能刚刚收到了停用邮件。' }
-    else if (acc >= 50) { title = '值班新手'; sub = '一半对一半错。真正的系统也是这个水平，所以才有这个游戏。' }
+    else if (acc >= 75) { title = '熟练审查员'; sub = '绝大多数裁定有理有据。但被你误封的那几个，大概正在写申诉信。' }
+    else if (acc >= 50) { title = '值班新手'; sub = '一半对一半错。真正的自动系统也是这个水平，所以才有这个游戏。' }
     else { title = '随机水平'; sub = '闭着眼睛点也能到这个正确率。建议从制度名词重新学起。' }
     let best = null
     try {

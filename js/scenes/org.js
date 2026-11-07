@@ -6,7 +6,7 @@ export function render(root) {
     <div class="ev-board">
       <div class="ev-item ev-paper" style="left:3%;top:6%;width:31%;--tilt:-2deg">
         <span class="pin-tack ev-tack"></span>
-        <div class="ev-paper-head">组织接入申请表<small>ORG ONBOARDING</small></div>
+        <div class="ev-paper-head">组织接入申请表<small>审核表</small></div>
         <div class="ev-reg">
           <div class="ev-reg-row"><span>组织名称</span><b>宇宙科技（新加坡）有限公司</b></div>
           <div class="ev-reg-row"><span>申报总部</span><b>Singapore · 新加坡</b></div>

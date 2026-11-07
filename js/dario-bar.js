@@ -22,14 +22,14 @@ function ensureBar() {
       <img src="${FACES.idle}" alt="Dario Amodei" />
       <span class="dario-face-ring"></span>
     </div>
-    <div class="dario-hp-cells" data-hp-cells aria-label="剩余血量">
+    <div class="dario-hp-cells" data-hp-cells role="meter" aria-label="达里奥剩余血量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
       ${Array.from({ length: 10 }, () => '<i></i>').join('')}
     </div>
     <div class="dario-meta">
       <div class="dario-top"><b>D. Amodei</b><span class="dario-say" data-dario-say>&nbsp;</span><span class="dario-ev-count" data-dario-ev>0/${levelTotal()}</span></div>
       <div class="dario-ev-slots" data-dario-slots></div>
     </div>
-    <button class="dario-hint" id="tool-hint" title="连续使用会从区域提示推进到准确位置和直接揭晓，每次达里奥 -1 滴血">
+    <button class="dario-hint" id="tool-hint" title="提示：指出下一步可查的线索。每次使用达里奥 -1 滴血">
       <svg class="ic"><use href="#i-bulb"/></svg><span>提示</span><small>-1 血</small>
     </button>`
   document.body.appendChild(bar)
@@ -69,6 +69,11 @@ function setHp(hp) {
     c.classList.toggle('on', i < lit)
     c.classList.toggle('low', hp <= 30)
   })
+  const meter = bar.querySelector('[data-hp-cells]')
+  if (meter) {
+    meter.setAttribute('aria-valuenow', String(hp))
+    meter.setAttribute('aria-valuetext', `剩余 ${hp} 血`)
+  }
 }
 
 function faceShake() {
@@ -91,6 +96,8 @@ export function refreshEvidence() {
   ].map(item => ({ ...item, id: clueIdFor(item.k) })).filter(i => (seen.has(i.id) ? false : seen.add(i.id)))
   const total = Math.max(1, Math.max(levelTotal(), items.length))
   count.textContent = `${items.length}/${levelTotal()}`
+  const lab = bar.querySelector('.dario-ev-label')
+  if (lab) lab.textContent = '证据'
   slots.style.gridTemplateColumns = `repeat(${total},minmax(0,1fr))`
   slots.innerHTML = Array.from({ length: total }, (_, idx) => {
     const it = items[idx]

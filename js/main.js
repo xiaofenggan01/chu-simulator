@@ -15,7 +15,11 @@ import {
 } from './investigation.js'
 
 const app = document.getElementById('app')
-const cleared = new Set()
+const CLEARED_KEY = 'achu_case_cleared'
+const cleared = new Set((() => {
+  try { return JSON.parse(localStorage.getItem(CLEARED_KEY)) || [] } catch { return [] }
+})())
+const saveCleared = () => { try { localStorage.setItem(CLEARED_KEY, JSON.stringify([...cleared])) } catch { } }
 let runActive = false
 let completing = false
 const TUTORIAL_KEY = 'achu-tutorial-seen'
@@ -29,6 +33,11 @@ function mount(html) {
   clearToast()
   app.innerHTML = html
   window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  const heading = app.querySelector('h1, h2, .rv-mac-title, .sim-head .t')
+  if (heading) {
+    heading.setAttribute('tabindex', '-1')
+    heading.focus({ preventScroll: true })
+  }
 }
 
 function showTitle() {
@@ -41,16 +50,21 @@ function showTitle() {
   mount(`
   <section class="screen on">
     <div class="title-hero">
-      <div class="title-kicker"><span class="live-dot"></span> SAFEGUARDS TEAM · 夜班记录 ${new Date().getFullYear()}</div>
+      <div class="title-kicker"><span class="live-dot"></span> 安全审查组 · 夜班记录 ${new Date().getFullYear()}</div>
       <div class="title-layout">
         <div class="title-copy">
-          <div class="title-mark"><svg class="logo"><use href="#i-logo"/></svg><span>CASE FILE  /  005</span></div>
+          <div class="title-mark"><svg class="logo"><use href="#i-logo"/></svg><span>案件卷宗 / 005</span></div>
           <h1>A 畜<br><em>模拟器</em></h1>
           <p class="title-lede">你将扮演一名安全审查员，帮助达里奥找到潜藏的中国用户。</p>
+          <ol class="title-steps">
+            <li><b>值班速裁</b>读聊天卷宗，认出大陆制度细节就盖「封禁」，境外生活痕迹就盖「通过」</li>
+            <li>判满 12 案交班，解锁<b>进阶断案</b></li>
+            <li>在证物板上取证，把线索放上反应台推理，直到推出「用户在中国大陆」</li>
+          </ol>
           <div class="title-actions">
             <button class="btn" id="btn-review">值班速裁<svg class="ic"><use href="#i-arrow-r"/></svg></button>
             <button class="btn ${unlocked ? '' : 'locked'}" id="btn-start">
-              ${unlocked ? (inProgress ? '继续断案' : '进阶 · 开始断案') : '进阶 · 断案模式'}
+              ${unlocked ? (cleared.size ? `进阶 · 继续断案（${cleared.size}/5）` : '进阶 · 开始断案') : '进阶 · 断案模式'}
               ${unlocked ? '<svg class="ic"><use href="#i-arrow-r"/></svg>' : '<svg class="ic"><use href="#i-lock"/></svg>'}
             </button>
           </div>
@@ -74,7 +88,7 @@ function showTitle() {
   document.getElementById('btn-review').onclick = startReview
   const startBtn = document.getElementById('btn-start')
   if (unlocked) startBtn.onclick = () => {
-    E.startRun(); cleared.clear(); runActive = true
+    E.startRun(); cleared.clear(); saveCleared(); runActive = true
     if (tutorialSeen) startPlay(0)
     else showTutorial({ onDone: () => startPlay(0) })
   }
@@ -87,22 +101,22 @@ function showTutorial({ onDone }) {
   mount(`
   <section class="screen on">
     <div class="tutorial-shell">
-      <div class="tutorial-head"><span class="title-kicker"><span class="live-dot"></span> TRAINING ROOM · 00</span><button class="btn text-btn" id="tutorial-skip">跳过教学</button></div>
+      <div class="tutorial-head"><span class="title-kicker"><span class="live-dot"></span> 训练室 · 00</span><button class="btn text-btn" id="tutorial-skip">跳过教学</button></div>
       <div class="tutorial-grid">
         <div class="tutorial-copy">
-          <span class="eyebrow">新手案 · 30 秒上手</span>
-          <h2>先别急着封号，<br><em>先找一条能站住的证据。</em></h2>
-          <p>这里的玩法很简单：点击具体事实。地点、付款渠道、办事记录可以成为证据；语言、姓名和“看起来很像”只能算干扰。</p>
-          <div class="tutorial-rules"><span><b>01</b> 点中证据</span><span><b>02</b> 看即时反馈</span><span><b>03</b> 找齐过关</span></div>
+          <span class="eyebrow">进阶断案 · 一分钟上手</span>
+          <h2>先取证，<br><em>再把线索拼成结论。</em></h2>
+          <p>证物板上带虚线的文字都能点。点过的线索会飞进右侧线索栏；收够 3 条就能展开推理板，把两张线索放上反应台点「推理」——配对了会生成新推论，配错了达里奥掉一滴血。</p>
+          <div class="tutorial-rules"><span><b>01</b> 点虚线取证</span><span><b>02</b> 收满 3 条上板</span><span><b>03</b> 反应台配对</span><span><b>04</b> 链到结案</span></div>
         </div>
         <div class="tutorial-board">
-          <div class="tutorial-board-head"><b>训练样本 · 账号资料</b><span>点击卡片检查</span></div>
+          <div class="tutorial-board-head"><b>训练样本 · 哪些算制度证据？</b><span>点击逐条判断</span></div>
           <div class="tutorial-card-list">
             <button class="tutorial-card" data-tutorial="correct"><span class="tutorial-icon">¥</span><span><small>付款方式</small><b>银联借记卡</b></span><i>?</i></button>
             <button class="tutorial-card" data-tutorial="decoy"><span class="tutorial-icon">文</span><span><small>回复偏好</small><b>使用中文回复</b></span><i>?</i></button>
             <button class="tutorial-card" data-tutorial="correct"><span class="tutorial-icon">沪</span><span><small>行程记录</small><b>上海虹桥站</b></span><i>?</i></button>
           </div>
-          <div class="tutorial-feedback" id="tutorial-feedback">等待你的第一次判断。</div>
+          <div class="tutorial-feedback" id="tutorial-feedback">哪些名词只可能出现在中国大陆？</div>
           <button class="btn tutorial-enter" id="tutorial-enter" disabled>点击上方卡片开始 <svg class="ic"><use href="#i-arrow-r"/></svg></button>
         </div>
       </div>
@@ -121,11 +135,11 @@ function showTutorial({ onDone }) {
         found += 1
         card.classList.add('is-correct')
         card.querySelector('i').textContent = '✓'
-        feedback.innerHTML = found === 2 ? '<b>教学完成。</b> 你已经知道“具体事实”和“语言偏好”的区别。' : '这是具体事实，可以继续保留。'
+        feedback.innerHTML = found === 2 ? '<b>教学完成。</b> 判定的关键是制度名词归属，不是语言或惨不惨。' : '这是大陆独有的制度名词，可以当证据。'
       } else {
         card.classList.add('is-decoy')
         card.querySelector('i').textContent = '×'
-        feedback.innerHTML = '<b>干扰项。</b> 中文只是语言偏好，不能直接判断用户在哪。'
+        feedback.innerHTML = '<b>不算证据。</b> 口语表达不指向任何地区的制度。'
       }
       if (found === 2) { enter.disabled = false; enter.textContent = ''; enter.innerHTML = '进入第一案 <svg class="ic"><use href="#i-arrow-r"/></svg>' }
     }
@@ -215,8 +229,8 @@ function showGameOver() {
       </div>
     </div>
   </section>`)
-  document.getElementById('go-retry').onclick = () => { E.startRun(); cleared.clear(); runActive = true; startPlay(0) }
-  document.getElementById('go-home').onclick = showTitle
+  document.getElementById('go-retry').onclick = () => { E.startRun(); cleared.clear(); saveCleared(); runActive = true; startPlay(0) }
+  document.getElementById('go-home').onclick = () => { runActive = false; showTitle() }
 }
 
 function advanceCompletedLevel() {
@@ -224,7 +238,7 @@ function advanceCompletedLevel() {
   closeAllOverlays({ clear: true, restoreFocus: false })
   clearToast()
   const i = E.state.levelIdx
-  cleared.add(i)
+  cleared.add(i); saveCleared()
   const hasNext = LEVELS[i + 1] && LEVELS[i + 1].status === 'ready'
   const isFinal = i === LEVELS.length - 1
   showLevelComplete({
@@ -275,13 +289,13 @@ function showRoadmap() {
   document.getElementById('rm-list').onclick = e => {
     const button = e.target.closest('.rm-btn[data-idx]')
     if (!button) return
-    if (!runActive) { E.startRun(); cleared.clear(); runActive = true }
+    if (!runActive) { E.startRun(); cleared.clear(); saveCleared(); runActive = true }
     startPlay(+button.dataset.idx)
   }
   document.getElementById('btn-title').onclick = showTitle
 }
 
-document.addEventListener('achu:restart', () => { E.startRun(); cleared.clear(); runActive = true; startPlay(0) })
+document.addEventListener('achu:restart', () => { E.startRun(); cleared.clear(); saveCleared(); runActive = true; startPlay(0) })
 document.addEventListener('achu:title', showTitle)
 document.addEventListener('achu:toast', e => toast(e.detail))
 document.addEventListener('achu:hp', e => darioSetHp(e.detail))
@@ -293,6 +307,7 @@ E.hooks.onInspect = (result, hit) => {
     toast(result.reason)
     darioHurt()
     if (result.dead) {
+      document.getElementById('play-root')?.classList.add('is-locked')
       darioDeath()
       setTimeout(showGameOver, 900)
     }
@@ -301,6 +316,7 @@ E.hooks.onInspect = (result, hit) => {
   }
   if (result.complete && !completing && !result.dead) {
     completing = true
+    document.getElementById('play-root')?.classList.add('is-locked')
     setTimeout(advanceCompletedLevel, 650)
   }
 }

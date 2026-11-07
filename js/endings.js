@@ -21,6 +21,8 @@ function loadBoard() {
 function saveBoard(b) { localStorage.setItem(BOARD_KEY, JSON.stringify(b)) }
 
 export function showEnding(app) {
+  document.getElementById('pin-tray')?.remove()
+  document.getElementById('ov-deduction')?.remove()
   E.pauseTimer()
   const finalMs = E.totalMs()
   const [title, subtitle] = verdictTitle(E.state.decoyHits, E.state.hintHits)
@@ -66,6 +68,7 @@ export function showEnding(app) {
 
       <div class="end-actions">
         <button class="btn ghost" id="end-restart">再玩一次</button>
+        <button class="btn ghost" id="end-home">回大厅</button>
       </div>
 
       <div class="leaderboard">
@@ -97,6 +100,7 @@ export function showEnding(app) {
     toast('本地排行榜已清空')
   }
   document.getElementById('end-restart').onclick = () => { E.startRun(); location.hash = ''; showBriefFromEnding(app) }
+  document.getElementById('end-home').onclick = () => document.dispatchEvent(new CustomEvent('achu:title'))
 
   let savedAt = 0
   function saveEntry() {
