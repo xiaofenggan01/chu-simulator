@@ -111,6 +111,8 @@ export function mountCollection(level, root) {
       darioHurt('废线索：' + def.label)
     }
     refreshEvidence()
+    const hc = root.querySelector('.dd-hint-count')
+    if (hc) hc.textContent = `${collected.size}/${all.length}`
     // 线索卡从原位飞进线索栏
     const r = node.getBoundingClientRect()
     const trayEl = document.getElementById('pin-tray')
@@ -130,6 +132,30 @@ export function mountCollection(level, root) {
     setTimeout(() => fly.remove(), 620)
     setTimeout(renderTray, 320)
   })
+
+  // 板内容高于可视区时给出下滑提示
+  const simBody = root.querySelector('.sim-body') || root.querySelector('.sim')
+  if (simBody) {
+    const cue = document.createElement('div')
+    cue.className = 'dd-scrollcue'
+    cue.textContent = '向下滑动查看更多证物 ↓'
+    simBody.appendChild(cue)
+    const updateCue = () => {
+      const more = simBody.scrollHeight - simBody.scrollTop - simBody.clientHeight > 24
+      cue.classList.toggle('on', more)
+    }
+    simBody.addEventListener('scroll', updateCue, { passive: true })
+    setTimeout(updateCue, 60)
+  }
+
+  // 顶部取证提示条：告诉玩家哪里能点
+  const boardEl = root.querySelector('.ev-board')
+  if (boardEl && !root.querySelector('.dd-hintbar')) {
+    const bar = document.createElement('div')
+    bar.className = 'dd-hintbar'
+    bar.innerHTML = `<b>取证</b><span>点击<span class="dd-swatch">浅黄高亮</span>的文字，收进线索栏</span><span class="dd-hint-count">0/${all.length}</span>`
+    boardEl.parentElement.insertBefore(bar, boardEl)
+  }
 
   document.getElementById('pin-tray')?.remove()
   const tray = document.createElement('div')

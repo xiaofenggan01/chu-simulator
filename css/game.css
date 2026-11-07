@@ -2379,3 +2379,45 @@ svg.tool-ic-svg{padding:7px;background:#69655E;color:#fff;fill:none;stroke:curre
 @media (min-width:901px){
   #pin-tray{max-height:min(44vh, 400px);top:calc(50% - 40px)}
 }
+
+/* ===== acceptance：证物板在底栏之上内部滚动，首屏不再被遮 ===== */
+#play-root .sim{height:calc(100dvh - 195px);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+#play-root .sim::-webkit-scrollbar{width:8px}
+#play-root .sim::-webkit-scrollbar-thumb{background:#B9AE99;border-radius:4px}
+#play-root .sim-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0;display:block}
+#play-root .sim-head{position:sticky;top:0;z-index:12}
+.ev-board{min-height:700px;height:auto;overflow:visible;padding-bottom:70px}
+@media (max-width:900px){
+  #play-root .sim{height:calc(100dvh - 235px)}
+}
+
+/* ===== 取证可发现性：高亮可点文字 + 顶部提示条 ===== */
+.ev-board .dd-node{
+  background:#FDF1D6;
+  border-bottom:2px dashed #C96442;
+  padding:1px 4px;
+  border-radius:3px;
+  cursor:pointer;
+  transition:background .14s ease,box-shadow .14s ease;
+}
+.ev-board .dd-node:hover{background:#F9E0AF;box-shadow:0 0 0 2px rgba(201,100,66,.35)}
+.ev-board .dd-node.clue-got{background:#EFE7DA;border-bottom-style:solid;border-bottom-color:#B9AB98;color:#8A8377;text-decoration:line-through}
+.dd-hintbar{display:flex;align-items:center;gap:10px;padding:9px 16px;background:#3A362F;color:#F4EFE4;font-size:13px}
+.dd-hintbar b{flex:0 0 auto;padding:3px 8px;border-radius:3px;background:#E7B95E;color:#2E2A26;font-size:11px;letter-spacing:.12em}
+.dd-hintbar .dd-swatch{padding:1px 5px;margin:0 2px;border-radius:3px;background:#FDF1D6;color:#8A4B2F;border-bottom:2px dashed #C96442;font-weight:700}
+.dd-hint-count{margin-left:auto;font:700 12px/1 var(--mono);color:#E7B95E}
+#play-root .sim-body{display:flex;flex-direction:column}
+.dd-hintbar+ .ev-board{margin-top:0}
+@media (max-width:900px){.dd-hintbar{font-size:12px;padding:8px 12px;flex-wrap:wrap}}
+/* 证物板下滑提示 */
+.dd-scrollcue{position:sticky;bottom:0;z-index:5;display:none;padding:10px;text-align:center;font:700 12px/1 var(--sans);color:#F4EFE4;background:linear-gradient(transparent,rgba(38,35,29,.92) 45%)}
+.dd-scrollcue.on{display:block}
+/* 有 .sim-body 的关卡（L2-L5）只滚内部，避免双层滚动 */
+#play-root .sim:has(.sim-body){overflow:hidden}
+#play-root .sim:has(.sim-body) .sim-body{overflow-y:auto}
+
+/* 银行卡上的取证高亮：浅底深字 */
+.ev-bankcard .dd-node{color:#2E2A26!important}
+.ev-bankcard .dd-node:hover{background:#F9E0AF!important;color:#2E2A26!important}
+.ev-bankcard .dd-node.clue-got{background:rgba(255,255,255,.55)!important;color:#57534B!important}
+.ev-board{min-height:820px}

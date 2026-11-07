@@ -44,7 +44,7 @@ export function render(root) {
         </div>
       </div>
 
-      <div class="ev-item ev-paper ev-checklist" style="left:30%;top:45%;width:32%;--tilt:-1.5deg">
+      <div class="ev-item ev-paper ev-checklist" style="left:30%;top:63%;width:32%;--tilt:-1.5deg">
         <span class="pin-tack ev-tack"></span>
         <div class="ev-paper-head">应用检查单<small>后台 · 近 7 天</small></div>
         <div class="ev-dock">

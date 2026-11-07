@@ -27,7 +27,7 @@ export function render(root) {
         <div class="ev-bc-tag">付款银行卡 · 实体制式</div>
       </div>
 
-      <div class="ev-item ev-paper" style="left:24%;top:46%;width:33%;--tilt:-1deg">
+      <div class="ev-item ev-paper" style="left:22%;top:62%;width:34%;--tilt:-1deg">
         <span class="pin-tack ev-tack"></span>
         <div class="ev-paper-head">支付回执单<small>本次订阅升级</small></div>
         <div class="ev-reg">
